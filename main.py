@@ -56,14 +56,21 @@ for i in range(V):
 
 T = int(input())
 # recieve info
+
 #受け取った情報をリストアップしていく
-#info[t][n]: 時間tにおける注文n個の注文情報が記録される
-info = [[] for i in range(T)]
+#info[destination][id]: 目的地destinationへの配達物id(key)とその注文時間t(value)
+info = [{} for i in range(V)]
+
+#oder_list[t][i]: 時間tに発生したi番目の注文情報
+oder_list = [[] for i in range(T)]
+
 for i in range(T):
 	Nnew = int(input())
 	for j in range(Nnew):
 		new_id, dst = map(int, input().split())
-		info[i].append((new_id, dst))
+		info[dst-1][new_id] = i
+		oder_list[i].append((new_id, dst))
+
 
 # insert your code here to get more meaningful output
 # all stay

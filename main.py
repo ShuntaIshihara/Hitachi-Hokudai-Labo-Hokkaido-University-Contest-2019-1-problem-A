@@ -71,6 +71,39 @@ for i in range(T):
 		info[dst-1][new_id] = i
 		oder_list[i].append((new_id, dst))
 
+#最適解を探索する
+#時間tまでの評価関数efuncを比較して一番高いものを返す
+def search(t, v, level, score):		#t: 時間, v: 車の位置, level: 読んでいる深さ, score: 得点
+	#t >= Tmax のときscoreを返す
+
+	#level >= 読み切る深さ のとき得点を計算して返す
+
+	#車がお店にいるとき
+	#時間tまでに受けたオーダーを受け取る
+	#配達場所(複数の目的地)までの最短経路を計算する
+	#max = -無限
+	#comp = search(配達に行く場合)
+	#comp > max のとき max = comp
+	#comp = search(店にとどまる場合)
+	#comp > max のとき now_score = comp
+	#return max
+
+	#車が今積んでいるすべての荷物を配達完了したとき
+	#得点計算
+	#return search(店に戻る, 計算した得点を引数に渡す)
+
+	#車が途中の配達まで完了したとき
+	#得点計算
+	#max = -無限
+	#comp = search(店に戻る, 計算した得点を引数に渡す)
+	#comp > max のとき max = comp
+	#comp = search(次の配達場所に向かう, 計算した得点を引数に渡す)
+	#return max
+
+	#search関数が呼ばれた時に車がお店にいるとは限らない
+	#車の位置を記憶しておくものが必要
+	#車に何が積んであるのか記録しておくものが必要
+	#車が何を選択したかを記憶するものが必要
 
 # insert your code here to get more meaningful output
 # all stay

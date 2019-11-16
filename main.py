@@ -58,8 +58,8 @@ T = int(input())
 # recieve info
 
 #受け取った情報をリストアップしていく
-#info[destination][id]: 目的地destinationへの配達物id(key)とその注文時間t(value)
-info = [{} for i in range(V)]
+#oder_time: key: 注文id, value: 注文時間t
+oder_time = {}
 
 #oder_list[t][i]: 時間tに発生したi番目の注文情報
 oder_list = [[] for i in range(T)]
@@ -68,32 +68,51 @@ for i in range(T):
 	Nnew = int(input())
 	for j in range(Nnew):
 		new_id, dst = map(int, input().split())
-		info[dst-1][new_id] = i
+		info[new_id] = i
 		oder_list[i].append((new_id, dst))
 
+#車の位置を記録いていく
+vehicle = []
+
+#車に積んである荷物を記録していく
+#key: 目的地, value: 注文idのリスト
+luggage = {key: [] for key in range(V)}
+
+
+LEVEL = 4
 #最適解を探索する
 #時間tまでの評価関数efuncを比較して一番高いものを返す
-def search(t, v, level, score):		#t: 時間, v: 車の位置, level: 読んでいる深さ, score: 得点
+def search(t, level, score):		#t: 時間, level: 読んでいる深さ, score: 得点
 	#t >= Tmax のときscoreを返す
-
-	#level >= 読み切る深さ のとき得点を計算して返す
+	if t >= T:
+		return score
 
 	#車がお店にいるとき
-	#時間tまでに受けたオーダーを受け取る
-	#配達場所(複数の目的地)までの最短経路を計算する
-	#max = -無限
-	#comp = search(配達に行く場合)
-	#comp > max のとき max = comp
-	#comp = search(店にとどまる場合)
-	#comp > max のとき now_score = comp
-	#return max
+	if vehicle[level] == 0:
+		#level >= 読み切る深さ のとき得点を計算して返す
+		if level >= LEVEL:
+			return score
+		#時間tまでに受けた注文idを受け取る
+		for i in range(t):
+			for oder in oder_list[i]:
+				luggage[oder[1]].append(oder[0])
+#既に配達済みの荷物まで受け取ってしまう
+		#配達場所(複数の目的地)までの最短経路を計算する
+		#max = -無限
+		#comp = search(配達に行く場合)
+		#comp > max のとき max = comp
+		#comp = search(店にとどまる場合)
+		#comp > max のとき now_score = comp
+		#return max
 
 	#車が今積んでいるすべての荷物を配達完了したとき
 	#得点計算
+	#level >= 読み切る深さ のとき得点を計算して返す
 	#return search(店に戻る, 計算した得点を引数に渡す)
 
 	#車が途中の配達まで完了したとき
 	#得点計算
+	#level >= 読み切る深さ のとき得点を計算して返す
 	#max = -無限
 	#comp = search(店に戻る, 計算した得点を引数に渡す)
 	#comp > max のとき max = comp

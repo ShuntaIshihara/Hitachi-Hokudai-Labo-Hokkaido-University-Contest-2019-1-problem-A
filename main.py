@@ -68,36 +68,45 @@ for i in range(T):
 	Nnew = int(input())
 	for j in range(Nnew):
 		new_id, dst = map(int, input().split())
-		info[new_id] = i
+		oder_time[new_id] = i
 		oder_list[i].append((new_id, dst))
-
-#車の位置を記録いていく
-vehicle = []
 
 #車に積んである荷物を記録していく
 #key: 目的地, value: 注文idのリスト
 luggage = {key: [] for key in range(V)}
 
 
-LEVEL = 4
+LEVEL = 4		#読みきる深さ
+shipping = -1	#車が最後にお店に立ち寄った時間
+next_move = -1	#車が次に取る行動
+dst_list = []
+
+#配達場所までの最短経路になるようにソートする関数
+def search_shortest_route(d):
+	
+
 #最適解を探索する
 #時間tまでの評価関数efuncを比較して一番高いものを返す
-def search(t, level, score):		#t: 時間, level: 読んでいる深さ, score: 得点
+def search(t, level, vehicle, score):		#t: 時間,  level: 読んでいる深さ, vehicle: 車の位置, score: 得点
 	#t >= Tmax のときscoreを返す
 	if t >= T:
 		return score
 
 	#車がお店にいるとき
-	if vehicle[level] == 0:
+	if vehicle == 0:
 		#level >= 読み切る深さ のとき得点を計算して返す
 		if level >= LEVEL:
 			return score
 		#時間tまでに受けた注文idを受け取る
-		for i in range(t):
+		for i in range(sipping+1, t+1):
 			for oder in oder_list[i]:
 				luggage[oder[1]].append(oder[0])
-#既に配達済みの荷物まで受け取ってしまう
 		#配達場所(複数の目的地)までの最短経路を計算する
+		#配達に向かう場所を記憶する
+		for i in range(V):
+			if luggage[i]:
+				dst_list.append(i)
+		search_shortest_route(dst_list)		#dst_listが最短経路でソートされる
 		#max = -無限
 		#comp = search(配達に行く場合)
 		#comp > max のとき max = comp
@@ -128,4 +137,3 @@ def search(t, level, score):		#t: 時間, level: 読んでいる深さ, score: �
 # all stay
 for i in range(T) :
 	print (-1)
-

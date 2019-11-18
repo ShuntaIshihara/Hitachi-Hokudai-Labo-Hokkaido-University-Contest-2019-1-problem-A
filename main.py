@@ -82,12 +82,27 @@ next_move = -1	#車が次に取る行動
 dst_list = []
 
 #配達場所までの最短経路になるようにソートする関数
-def search_shortest_route(d):
+def search_shortest_route(start, start_index, d):
+	if start_index >= len(d):
+		return
+
+	min = sys.maxsize
+	v = -1
+	for i in range(start_index, len(d)):
+		if min > shortest_time[start][d[i]]:
+			min = shortest_time[start][d[i]]
+			v = i
 	
+	w = d[start_index]
+	d[start_index] = d[v]
+	d[v] = w
+
+	search_shortest_route(v, start_index+1, d)
+		
 
 #最適解を探索する
 #時間tまでの評価関数efuncを比較して一番高いものを返す
-def search(t, level, vehicle, score):		#t: 時間,  level: 読んでいる深さ, vehicle: 車の位置, score: 得点
+def search(t, level, vehicle, score, dst_list):		#t: 時間,  level: 読んでいる深さ, vehicle: 車の位置, score: 得点
 	#t >= Tmax のときscoreを返す
 	if t >= T:
 		return score
@@ -101,18 +116,33 @@ def search(t, level, vehicle, score):		#t: 時間,  level: 読んでいる深さ
 		for i in range(sipping+1, t+1):
 			for oder in oder_list[i]:
 				luggage[oder[1]].append(oder[0])
+
 		#配達場所(複数の目的地)までの最短経路を計算する
+		#もしdst_listが空ではなかったら空にする
+		if dst_list != None:
+			dst_list.clear()
+
 		#配達に向かう場所を記憶する
 		for i in range(V):
 			if luggage[i]:
 				dst_list.append(i)
-		search_shortest_route(dst_list)		#dst_listが最短経路でソートされる
-		#max = -無限
+		search_shortest_route(0, 0, dst_list)		#dst_listが最短経路でソートされる
+		dst_list_copy = copy.copy(dst_list)
 		#comp = search(配達に行く場合)
-		#comp > max のとき max = comp
+		max_score = search(t+shortest_time[vehicle][dst_list[0]], level+1, dst_list[0], score, dst_list_copy)
 		#comp = search(店にとどまる場合)
+		comp = search(t+1, level+1, vehicle, score, dst_list_copy)
 		#comp > max のとき now_score = comp
+		if comp > max_score:
+			max_score = comp
+			next_move = -1
 		#return max
+		return max_score
+
+#############################################################################################
+#dst_listは複数の目的地においてどの順番で届けにいけば最速になるかのリストである				#
+#すなわち、各目的地までの経路は記されていないのでshortest_routeを用いて移動する必要がある	#
+#############################################################################################
 
 	#車が今積んでいるすべての荷物を配達完了したとき
 	#得点計算
@@ -120,6 +150,9 @@ def search(t, level, vehicle, score):		#t: 時間,  level: 読んでいる深さ
 	#return search(店に戻る, 計算した得点を引数に渡す)
 
 	#車が途中の配達まで完了したとき
+	else:
+		for i in luggage[vehicle]:
+
 	#得点計算
 	#level >= 読み切る深さ のとき得点を計算して返す
 	#max = -無限

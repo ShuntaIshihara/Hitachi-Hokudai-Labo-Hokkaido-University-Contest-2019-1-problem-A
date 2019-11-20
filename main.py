@@ -195,6 +195,7 @@ shipping_time = -1
 count = 0
 # insert your code here to get more meaningful output
 # all stay
+#with open('result.out', 'w') as f:
 for i in range(T) :
 	#次の目的地と車の現在地が等しいとき
 	if real_v == next_dst:

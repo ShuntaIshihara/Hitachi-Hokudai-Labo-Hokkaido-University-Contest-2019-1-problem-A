@@ -1,75 +1,79 @@
 import sys
 import copy
 # recieve |V| and |E|
-V, E = map(int, input().split())
-es = [[] for i in range(V)]
-
-for i in range(E):
-
-	# recieve edges
-	#es[point][edgenumber]: 頂点pointにedgenumber本の辺がある
-	#値はつながっている頂点とその距離
-	a, b, c = map(int, input().split())
-	a, b = a-1, b-1
-	es[a].append((b,c))
-	es[b].append((a,c))
-
-#頂点iから頂点j(0 <= i <= V-1, 0 <= j <= V-1)の最短時間をリストアップする
-#shortest_time[i][j]: 頂点iから頂点jまでの最短時間が記録されている
-shortest_time = [[sys.maxsize for j in range(V)] for i in range(V)]
-
-#頂点iから頂点j(0 <= i <= V-1, 0 <= j <= V-1)の最短経路をリストアップする
-#shortest_route[i][j]: 頂点iから頂点jまでの経路のリストが取得できる
-shortest_route = [[[] for j in range(V)] for i in range(V)]
-
-#最短時間と最短経路をリストアップする関数を作る
-def make_shortest_time_and_route(current, point, t, ic):
-	#既に追加されている時間以上であればバックする
-	if shortest_time[current][point] < t:
-		return
+with open('testcase.in', 'r') as f:	
+	line = f.readline()
+	V, E = map(int, line.split())
+	es = [[] for i in range(V)]
 	
-	#行き先が自分の頂点であるときの距離は0にする
-	if current == point:
-		shortest_time[current][point] = 0
+	for i in range(E):
+		line = f.readline()
+		# recieve edges
+		#es[point][edgenumber]: 頂点pointにedgenumber本の辺がある
+		#値はつながっている頂点とその距離
+		a, b, c = map(int, line.split())
+		a, b = a-1, b-1
+		es[a].append((b,c))
+		es[b].append((a,c))
 	
-	for edge_tuple in es[point]:
-		if shortest_time[current][edge_tuple[0]] > t+edge_tuple[1]:
-			#既に追加されている時間よりも小さかったら代入する
-			shortest_time[current][edge_tuple[0]] = t+edge_tuple[1]
-
-			#途中経路を記録していく	
-			ic.append(edge_tuple[0])
-
-			#最短時間でいける経路を記録していく
-			#新しく最短経路が見つかれば上書きされる
-			shortest_route[current][edge_tuple[0]] = copy.copy(ic)
-
-			#再帰呼び出し
-			make_shortest_time_and_route(current, edge_tuple[0], t+edge_tuple[1], ic)
-
-			#新しい経路のために古いものを削除しておく
-			del ic[-1]
-			
-for i in range(V):
-	interchange = []
-	make_shortest_time_and_route(i, i, 0, interchange)
-
-T = int(input())
-# recieve info
-
-#受け取った情報をリストアップしていく
-#oder_time: key: 注文id, value: 注文時間t
-oder_time = {}
-
-#oder_list[t][i]: 時間tに発生したi番目の注文情報
-oder_list = [[] for i in range(T)]
-
-for i in range(T):
-	Nnew = int(input())
-	for j in range(Nnew):
-		new_id, dst = map(int, input().split())
-		oder_time[new_id] = i
-		oder_list[i].append((new_id, dst-1))
+	#頂点iから頂点j(0 <= i <= V-1, 0 <= j <= V-1)の最短時間をリストアップする
+	#shortest_time[i][j]: 頂点iから頂点jまでの最短時間が記録されている
+	shortest_time = [[sys.maxsize for j in range(V)] for i in range(V)]
+	
+	#頂点iから頂点j(0 <= i <= V-1, 0 <= j <= V-1)の最短経路をリストアップする
+	#shortest_route[i][j]: 頂点iから頂点jまでの経路のリストが取得できる
+	shortest_route = [[[] for j in range(V)] for i in range(V)]
+	
+	#最短時間と最短経路をリストアップする関数を作る
+	def make_shortest_time_and_route(current, point, t, ic):
+		#既に追加されている時間以上であればバックする
+		if shortest_time[current][point] < t:
+			return
+		
+		#行き先が自分の頂点であるときの距離は0にする
+		if current == point:
+			shortest_time[current][point] = 0
+		
+		for edge_tuple in es[point]:
+			if shortest_time[current][edge_tuple[0]] > t+edge_tuple[1]:
+				#既に追加されている時間よりも小さかったら代入する
+				shortest_time[current][edge_tuple[0]] = t+edge_tuple[1]
+	
+				#途中経路を記録していく	
+				ic.append(edge_tuple[0])
+	
+				#最短時間でいける経路を記録していく
+				#新しく最短経路が見つかれば上書きされる
+				shortest_route[current][edge_tuple[0]] = copy.copy(ic)
+	
+				#再帰呼び出し
+				make_shortest_time_and_route(current, edge_tuple[0], t+edge_tuple[1], ic)
+	
+				#新しい経路のために古いものを削除しておく
+				del ic[-1]
+				
+	for i in range(V):
+		interchange = []
+		make_shortest_time_and_route(i, i, 0, interchange)
+	line = f.readline()	
+	T = int(line)
+	# recieve info
+	
+	#受け取った情報をリストアップしていく
+	#oder_time: key: 注文id, value: 注文時間t
+	oder_time = {}
+	
+	#oder_list[t][i]: 時間tに発生したi番目の注文情報
+	oder_list = [[] for i in range(T)]
+	
+	for i in range(T):
+		line = f.readline()
+		Nnew = int(line)
+		for j in range(Nnew):
+			line = f.readline()
+			new_id, dst = map(int, line.split())
+			oder_time[new_id] = i
+			oder_list[i].append((new_id, dst-1))
 
 #配達に向かう目的地をリストに入れる
 def get_destination(d, l):
@@ -194,14 +198,22 @@ real_v = 0
 #最後に店に訪れた時間
 shipping_time = -1
 #次の頂点につくまでのカウンター
-count = 0
+count = sys.maxsize
+
+situation = 1
 # insert your code here to get more meaningful output
 # all stay
-with open('result.txt', 'w') as f:
+with open('test_case.out', 'w') as f:
 	for i in range(T) :
-		#次の目的地と車の現在地が等しいとき
+		if count <= 0:
+			if next_move != -2:
+				real_v = next_move
+				if real_v != next_dst:
+					next_move = shortest_route[real_v][next_dst][0]
+					count = shortest_time[real_v][next_move]
+	#次の目的地と車の現在地が等しいとき
 		if real_v == next_dst:
-			count = 0
+			count = sys.maxsize
 			#車が店にいるとき
 			if real_v == 0:
 				index = 0
@@ -217,6 +229,7 @@ with open('result.txt', 'w') as f:
 				max_score = search(i+1, 0, real_v, 0, shipping_time, real_d, real_l)
 				next_dst = 0
 				next_move = -2
+				count = 0
 				#いく場合
 				comp = -1
 				if real_d:
@@ -224,6 +237,7 @@ with open('result.txt', 'w') as f:
 				if comp > max_score:
 					next_dst = real_d[index]
 					next_move = shortest_route[real_v][next_dst][0]
+					count = shortest_time[real_v][next_move]
 					index += 1
 			#車が今ある荷物をすべて配達したとき
 			elif index >= len(real_d) - 1:
@@ -231,6 +245,7 @@ with open('result.txt', 'w') as f:
 				real_l[real_v].clear()
 				next_dst = 0
 				next_move = shortest_route[real_v][next_dst][0]
+				count = shortest_time[real_v][next_move]
 			#車が途中の配達場所まで配達完了したとき
 			else:
 				real_l[real_v].clear()
@@ -238,27 +253,24 @@ with open('result.txt', 'w') as f:
 				max_score = search(i+shortest_time[real_v][0], 0, 0, 0, shipping_time, real_d, real_l)
 				next_dst = 0
 				next_move = shortest_route[real_v][next_dst][0]
+				count = shortest_time[real_v][next_move]
 				#次の目的地に行く
 				comp = search(i+shortest_time[real_v][real_d[index]], 0, real_d[index], 0, shipping_time, real_d, real_l)
 				if comp > max_score:
 					next_dst = real_d[index]
 					next_move = shortest_route[real_v][next_dst][0]
+					count = shortest_time[real_v][next_move]
 					index += 1
 	
 			#次の行動を出力する
+			count -= 1
 			print(next_move+1, file=f)
 	
 		#次の頂点まで移動中のとき
 		else:
-			if count >= shortest_time[real_v][next_move]-1:
-				if next_move == next_dst:
-					real_v = next_dst
-					count += 1
-					print(next_move+1, file=f)
-					continue
-				count = 0
-				real_v = next_move
-				next_move = shortest_route[real_v][next_dst][0]
-	
-			count += 1
+			count -= 1
 			print(next_move+1, file=f)
+
+		if i >= T/100 * situation:
+			print('=', end="")
+			situation += 1

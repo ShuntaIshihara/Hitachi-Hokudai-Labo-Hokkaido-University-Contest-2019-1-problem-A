@@ -194,14 +194,20 @@ real_v = 0
 #最後に店に訪れた時間
 shipping_time = -1
 #次の頂点につくまでのカウンター
-count = 0
+count = sys.maxsize
 # insert your code here to get more meaningful output
 # all stay
 #with open('result.out', 'w') as f:
 for i in range(T) :
+	if count <= 0:
+		if next_move != -2:
+			real_v = next_move
+			if real_v != next_dst:
+				next_move = shortest_route[real_v][next_dst][0]
+				count = shortest_time[real_v][next_move]
 	#次の目的地と車の現在地が等しいとき
 	if real_v == next_dst:
-		count = 0
+		count = sys.maxsize
 		#車が店にいるとき
 		if real_v == 0:
 			index = 0
@@ -217,6 +223,7 @@ for i in range(T) :
 			max_score = search(i+1, 0, real_v, 0, shipping_time, real_d, real_l)
 			next_dst = 0
 			next_move = -2
+			count = 0
 			#いく場合
 			comp = -1
 			if real_d:
@@ -224,6 +231,7 @@ for i in range(T) :
 			if comp > max_score:
 				next_dst = real_d[index]
 				next_move = shortest_route[real_v][next_dst][0]
+				count = shortest_time[real_v][next_move]
 				index += 1
 		#車が今ある荷物をすべて配達したとき
 		elif index >= len(real_d) - 1:
@@ -231,6 +239,7 @@ for i in range(T) :
 			real_l[real_v].clear()
 			next_dst = 0
 			next_move = shortest_route[real_v][next_dst][0]
+			count = shortest_time[real_v][next_move]
 		#車が途中の配達場所まで配達完了したとき
 		else:
 			real_l[real_v].clear()
@@ -238,27 +247,20 @@ for i in range(T) :
 			max_score = search(i+shortest_time[real_v][0], 0, 0, 0, shipping_time, real_d, real_l)
 			next_dst = 0
 			next_move = shortest_route[real_v][next_dst][0]
+			count = shortest_time[real_v][next_move]
 			#次の目的地に行く
 			comp = search(i+shortest_time[real_v][real_d[index]], 0, real_d[index], 0, shipping_time, real_d, real_l)
 			if comp > max_score:
 				next_dst = real_d[index]
 				next_move = shortest_route[real_v][next_dst][0]
+				count = shortest_time[real_v][next_move]
 				index += 1
 
 		#次の行動を出力する
+		count -= 1
 		print(next_move+1)
 
 	#次の頂点まで移動中のとき
 	else:
-		if count >= shortest_time[real_v][next_move]-1:
-			if next_move == next_dst:
-				real_v = next_dst
-				count += 1
-				print(next_move+1)
-				continue
-			count = 0
-			real_v = next_move
-			next_move = shortest_route[real_v][next_dst][0]
-
-		count += 1
+		count -= 1
 		print(next_move+1)

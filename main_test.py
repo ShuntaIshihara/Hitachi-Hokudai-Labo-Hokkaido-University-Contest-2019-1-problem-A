@@ -226,7 +226,7 @@ with open('result.txt', 'w') as f:
 					next_move = shortest_route[real_v][next_dst][0]
 					index += 1
 			#車が今ある荷物をすべて配達したとき
-			elif index == len(real_d) - 1:
+			elif index >= len(real_d) - 1:
 				real_d.clear()
 				real_l[real_v].clear()
 				next_dst = 0
@@ -250,7 +250,7 @@ with open('result.txt', 'w') as f:
 	
 		#次の頂点まで移動中のとき
 		else:
-			if count == shortest_time[real_v][next_move]-1:
+			if count >= shortest_time[real_v][next_move]-1:
 				if next_move == next_dst:
 					real_v = next_dst
 					count += 1

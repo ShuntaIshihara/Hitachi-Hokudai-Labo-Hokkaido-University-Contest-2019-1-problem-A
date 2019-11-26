@@ -23,7 +23,7 @@ shortest_time = [[sys.maxsize for j in range(V)] for i in range(V)]
 shortest_route = [[[] for j in range(V)] for i in range(V)]
 
 #最短時間と最短経路をリストアップする関数を作る
-def make_shortest_time_and_route(current, point, t, ic):
+def make_shortest_time_and_route(current, point, t, previous):
 	#既に追加されている時間以上であればバックする
 	if shortest_time[current][point] < t:
 		return
@@ -34,26 +34,23 @@ def make_shortest_time_and_route(current, point, t, ic):
 	
 	for edge_tuple in es[point]:
 		if shortest_time[current][edge_tuple[0]] > t+edge_tuple[1]:
-			#既に追加されている時間よりも小さかったら代入する
 			shortest_time[current][edge_tuple[0]] = t+edge_tuple[1]
-
-			#途中経路を記録していく	
-			ic.append(edge_tuple[0])
-
-			#最短時間でいける経路を記録していく
-			#新しく最短経路が見つかれば上書きされる
-			shortest_route[current][edge_tuple[0]] = copy.copy(ic)
-
-			#再帰呼び出し
-			make_shortest_time_and_route(current, edge_tuple[0], t+edge_tuple[1], ic)
-
-			#新しい経路のために古いものを削除しておく
-			del ic[-1]
+			shortest_time[edge_tuple[0]][current] = t+edge_tuple[1]
 			
-for i in range(V):
-	interchange = []
-	make_shortest_time_and_route(i, i, 0, interchange)
+			shortest_route[current][edge_tuple[0]].clear()
+			shortest_route[current][edge_tuple[0]] = copy.copy(shortest_route[current][previous])
+			shortest_route[current][edge_tuple[0]].append(edge_tuple[0])
 
+			shortest_route[edge_tuple[0]][current].clear()
+			shortest_route[edge_tuple[0]][current] = copy.copy(shortest_route[current][previous])
+			shortest_route[edge_tuple[0]][current].reverse()
+			shortest_route[edge_tuple[0]][current].append(current)
+
+	for edge_tuple in es[point]:
+		make_shortest_time_and_route(current, edge_tuple[0], t+edge_tuple[1], edge_tuple[0])
+
+for i in range(V):
+	make_shortest_time_and_route(i, i, 0, i)
 T = int(input())
 # recieve info
 
@@ -186,7 +183,7 @@ real_d = []
 #index
 index = 0
 #次の行動
-next_move = -1
+next_move = -2
 #次の目的地
 next_dst = 0
 #車の現在地
@@ -194,7 +191,7 @@ real_v = 0
 #最後に店に訪れた時間
 shipping_time = -1
 #次の頂点につくまでのカウンター
-count = sys.maxsize
+count = 0
 # insert your code here to get more meaningful output
 # all stay
 #with open('result.out', 'w') as f:
@@ -207,7 +204,7 @@ for i in range(T) :
 				count = shortest_time[real_v][next_move]
 	#次の目的地と車の現在地が等しいとき
 	if real_v == next_dst:
-		count = sys.maxsize
+		count = 0
 		#車が店にいるとき
 		if real_v == 0:
 			index = 0

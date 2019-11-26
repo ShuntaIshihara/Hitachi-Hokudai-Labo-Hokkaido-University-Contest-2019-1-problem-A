@@ -1,16 +1,18 @@
 import sys
 import copy
 # recieve |V| and |E|
-with open('testcase.in', 'r') as f:	
-	line = f.readline()
+args = sys.argv
+with open(args[1], 'r') as f:
+	line = f.readline()	
 	V, E = map(int, line.split())
 	es = [[] for i in range(V)]
 	
 	for i in range(E):
-		line = f.readline()
+	
 		# recieve edges
 		#es[point][edgenumber]: 頂点pointにedgenumber本の辺がある
 		#値はつながっている頂点とその距離
+		line = f.readline()
 		a, b, c = map(int, line.split())
 		a, b = a-1, b-1
 		es[a].append((b,c))
@@ -25,7 +27,7 @@ with open('testcase.in', 'r') as f:
 	shortest_route = [[[] for j in range(V)] for i in range(V)]
 	
 	#最短時間と最短経路をリストアップする関数を作る
-	def make_shortest_time_and_route(current, point, t, ic):
+	def make_shortest_time_and_route(current, point, t, previous):
 		#既に追加されている時間以上であればバックする
 		if shortest_time[current][point] < t:
 			return
@@ -36,26 +38,30 @@ with open('testcase.in', 'r') as f:
 		
 		for edge_tuple in es[point]:
 			if shortest_time[current][edge_tuple[0]] > t+edge_tuple[1]:
-				#既に追加されている時間よりも小さかったら代入する
 				shortest_time[current][edge_tuple[0]] = t+edge_tuple[1]
-	
-				#途中経路を記録していく	
-				ic.append(edge_tuple[0])
-	
-				#最短時間でいける経路を記録していく
-				#新しく最短経路が見つかれば上書きされる
-				shortest_route[current][edge_tuple[0]] = copy.copy(ic)
-	
-				#再帰呼び出し
-				make_shortest_time_and_route(current, edge_tuple[0], t+edge_tuple[1], ic)
-	
-				#新しい経路のために古いものを削除しておく
-				del ic[-1]
+				shortest_time[edge_tuple[0]][current] = t+edge_tuple[1]
 				
+				shortest_route[current][edge_tuple[0]].clear()
+				shortest_route[current][edge_tuple[0]] = copy.copy(shortest_route[current][previous])
+				shortest_route[current][edge_tuple[0]].append(edge_tuple[0])
+	
+				shortest_route[edge_tuple[0]][current].clear()
+				shortest_route[edge_tuple[0]][current] = copy.copy(shortest_route[current][previous])
+				shortest_route[edge_tuple[0]][current].reverse()
+				shortest_route[edge_tuple[0]][current].append(current)
+	
+		for edge_tuple in es[point]:
+			make_shortest_time_and_route(current, edge_tuple[0], t+edge_tuple[1], edge_tuple[0])
+	s = 0
+	print("now making shortest_time and shortest_route.")
 	for i in range(V):
-		interchange = []
-		make_shortest_time_and_route(i, i, 0, interchange)
-	line = f.readline()	
+		make_shortest_time_and_route(i, i, 0, i)
+		if i >= V/100 * s:
+			print("=", end="")
+			s += 1
+	print()
+	
+	line = f.readline()
 	T = int(line)
 	# recieve info
 	
@@ -74,7 +80,7 @@ with open('testcase.in', 'r') as f:
 			new_id, dst = map(int, line.split())
 			oder_time[new_id] = i
 			oder_list[i].append((new_id, dst-1))
-
+	
 #配達に向かう目的地をリストに入れる
 def get_destination(d, l):
 	for i in range(V):
@@ -190,7 +196,7 @@ real_d = []
 #index
 index = 0
 #次の行動
-next_move = -1
+next_move = -2
 #次の目的地
 next_dst = 0
 #車の現在地
@@ -198,12 +204,12 @@ real_v = 0
 #最後に店に訪れた時間
 shipping_time = -1
 #次の頂点につくまでのカウンター
-count = sys.maxsize
-
-situation = 1
+count = 0
+situation = 0
 # insert your code here to get more meaningful output
 # all stay
-with open('test_case.out', 'w') as f:
+print("now writing result.")
+with open(args[2], 'w') as f:
 	for i in range(T) :
 		if count <= 0:
 			if next_move != -2:
@@ -211,9 +217,9 @@ with open('test_case.out', 'w') as f:
 				if real_v != next_dst:
 					next_move = shortest_route[real_v][next_dst][0]
 					count = shortest_time[real_v][next_move]
-	#次の目的地と車の現在地が等しいとき
+		#次の目的地と車の現在地が等しいとき
 		if real_v == next_dst:
-			count = sys.maxsize
+			count = 0
 			#車が店にいるとき
 			if real_v == 0:
 				index = 0
@@ -270,7 +276,8 @@ with open('test_case.out', 'w') as f:
 		else:
 			count -= 1
 			print(next_move+1, file=f)
-
+			
 		if i >= T/100 * situation:
-			print('=', end="")
-			situation += 1
+				print('=', end="")
+				situation += 1
+print()
